@@ -1,0 +1,110 @@
+{% extends 'busapp/base.html' %}
+{% block title %}Book Seat — Faculty{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6">
+    <div class="page-header" style="background: linear-gradient(135deg, var(--sky-light) 0%, var(--mint-light) 100%);">
+      <h1><i class="bi bi-person-badge me-2"></i>Faculty Booking</h1>
+      <p>Reserve your seat for the upcoming bus service</p>
+    </div>
+
+    <!-- Slot Summary Card -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <i class="bi bi-bus-front me-2"></i>Slot Details
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="form-label">Service</div>
+            <span class="slot-type-badge badge-{{ slot.service_type }}">{{ slot.get_service_type_display }}</span>
+          </div>
+          <div class="col-6">
+            <div class="form-label">Date</div>
+            <strong>{{ slot.date }}</strong>
+          </div>
+          <div class="col-6">
+            <div class="form-label">Route</div>
+            <strong>{{ slot.from_location }} → {{ slot.to_location }}</strong>
+          </div>
+          <div class="col-6">
+            <div class="form-label">Departure</div>
+            <strong>{{ slot.departure_time|time:"h:i A" }}</strong>
+          </div>
+          {% if slot.has_return %}
+          <div class="col-12">
+            <div class="return-banner">
+              <div class="return-route"><i class="bi bi-arrow-left-right me-1"></i>Return: {{ slot.return_from }} → {{ slot.return_to }} @ {{ slot.return_time|time:"h:i A" }}</div>
+              <small>Select "Both Ways" to include return journey in this single booking</small>
+            </div>
+          </div>
+          {% endif %}
+          {% if slot.description %}
+          <div class="col-12">
+            <div class="form-label">Note</div>
+            <span style="font-size:0.88rem; color:var(--text-mid);">{{ slot.description }}</span>
+          </div>
+          {% endif %}
+          <div class="col-6">
+            <div class="form-label">Seats Available</div>
+            <strong>{{ slot.available_seats }} / {{ slot.total_seats }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Faculty Info Summary -->
+    <div class="card mb-4" style="background:var(--sky-light); border:2px solid var(--sky);">
+      <div class="card-body py-3">
+        <div class="row g-1" style="font-size:0.88rem;">
+          <div class="col-6"><span class="form-label">Name:</span> <strong>{{ user.get_full_name }}</strong></div>
+          <div class="col-6"><span class="form-label">Username:</span> <strong>{{ user.username }}</strong></div>
+          <div class="col-6"><span class="form-label">Email:</span> <strong>{{ user.email|default:"—" }}</strong></div>
+          <div class="col-6"><span class="form-label">Dept:</span> <strong>{{ user.department|default:"—" }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="card">
+      <div class="card-header"><i class="bi bi-ticket me-2"></i>Booking Form</div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label">Journey Type *</label>
+            {{ form.journey_type }}
+            {% if not slot.has_return and slot.service_type == 'weekend' %}
+              <div class="form-text"><i class="bi bi-info-circle me-1"></i>No return slot configured. One-way only.</div>
+            {% endif %}
+          </div>
+
+          <div id="oneway-fields">
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-chat-text me-1"></i>Reason / Purpose of Travel</label>
+              {{ form.reason }}
+              <div class="form-text">Optional for faculty. You may describe purpose of travel.</div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label"><i class="bi bi-paperclip me-1"></i>Supporting Document (Optional)</label>
+              {{ form.proof }}
+              <div class="form-text">Optional: Upload any relevant document.</div>
+            </div>
+          </div>
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="d-flex gap-2">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary flex-fill"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <button type="submit" class="btn btn-info flex-fill"><i class="bi bi-check-circle me-2"></i>Confirm Booking</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
