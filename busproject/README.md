@@ -1,4 +1,4 @@
-# 🚌 LavPune Bus Booking System
+# 🚌 Lavasa Bus Booking System
 
 A full-stack Django web application for managing the Lavasa ↔ Pune university bus service.
 
